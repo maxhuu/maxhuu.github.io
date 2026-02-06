@@ -1,13 +1,14 @@
 <html lang="zh-CN"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Millmane App UI | 作品详情 | maxhuu</title>
+    <title>设计师作品集 | Ada Wang</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- GSAP 动画库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -21,6 +22,10 @@
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    transitionProperty: {
+                        'height': 'height',
+                        'spacing': 'margin, padding',
                     }
                 }
             }
@@ -53,7 +58,7 @@
     </style>
     
     <style>
-        /* 自定义滚动条 */
+        /* 自定义滚动区域的自定义滚动条 */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -68,40 +73,7 @@
             background: #555;
         }
         
-        /* 图片查看器样式 */
-        .image-viewer {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .image-viewer.active {
-            display: flex;
-        }
-        
-        .image-viewer img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        
-        .image-viewer-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-        }
-        
-        /* 淡入动画 */
+        /* 平滑区域的动画 */
         .fade-in {
             opacity: 0;
             transform: translateY(20px);
@@ -112,21 +84,45 @@
             opacity: 1;
             transform: translateY(0);
         }
+        
+        /* 作品卡片悬停效果 */
+        .work-card {
+            transition: all 0.3s ease;
+        }
+        
+        .work-card:hover .work-overlay {
+            opacity: 1;
+        }
+        
+        .work-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 导航栏滚动效果 */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-white text-primary font-sans">
     <!-- 导航栏 -->
-    <nav id="navbar" class="fixed top-0 left-0 w-full bg-white bg-opacity-95 nav-shadow py-4 z-50">
+    <nav id="navbar" class="navbar-fixed bg-white bg-opacity-95 nav-shadow py-4">
         <div class="container mx-auto px-4 md:px-8">
-            <div class="flex justify-between items-center">
-                <a href="../index.html" class="text-2xl font-bold text-primary">Max Huu</a>
+            <div class="flex justify-between-between items-center">
+                <a href="#" class="text-2xl font-bold text-primary">Max Huu</a>
                 
                 <!-- 桌面导航 -->
                 <div class="hidden md:flex ml-auto space-x-8">
-                    <a href="../index.html" class="text-secondary hover:text-accent transition-colors">Home</a>
-                    <a href="../index.html#works" class="text-secondary hover:text-accent transition-colors">Works</a>
-                    <a href="../index.html#about" class="text-secondary hover:text-accent transition-colors">About</a>
-                    <a href="../index.html#contact" class="text-secondary hover:text-accent transition-colors">Contact</a>
+                    <a href="#home" class="text-secondary hover:text-accent transition-colors">Home</a>
+                    <a href="#works" class="text-secondary hover:text-accent transition-colors">Works</a>
+                    <a href="#about" class="text-secondary hover:text-accent transition-colors">About</a>
+                    <a href="#contact" class="text-secondary hover:text-accent transition-colors">Contact</a>
                 </div>
                 
                 <!-- 移动端菜单按钮 -->
@@ -139,180 +135,299 @@
         <!-- 移动端导航菜单 -->
         <div id="mobile-menu" class="md:hidden bg-white hidden absolute top-full left-0 w-full border-t border-gray-100">
             <div class="container mx-auto px-4 py-4">
-                <a href="../index.html" class="block py-2 text-secondary hover:text-accent">Home</a>
-                <a href="../index.html#works" class="block py-2 text-secondary hover:text-accent">Works</a>
-                <a href="../index.html#about" class="block py-2 text-secondary hover:text-accent">About</a>
-                <a href="../index.html#contact" class="block py-2 text-secondary hover:text-accent">Contact</a>
+                <a href="#home" class="block py-2 text-secondary hover:text-accent">Home</a>
+                <a href="#works" class="block py-2 text-secondaryary hover:text-accent">Works</a>
+                <a href="#about" class="block py-2 text-secondaryary hover:text-accent">About</a>
+                <a href="#contact" class="block py-2 text-secondary hover:text-accent">Contact</a>
             </div>
         </div>
     </nav>
 
-    <!-- 主要内容 -->
-    <main class="pt-16 pb-16">
-        <!-- 作品标题和简介 -->
-        <section class="pt-16 pb-12 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <div class="max-w-5xl mx-auto">
-                    <h1 class="text-3xl md:text-5xl font-bold mb-4">BRAND CREATIVITY</h1>
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        <span class="px-4 py-2 bg-gray-200 rounded-full text-sm">Brand Creativity
-</span>
-                        <span class="px-4 py-2 bg-gray-200 rounded-full text-sm">Mobile App</span>
-                        <span class="px-4 py-2 bg-gray-200 rounded-full text-sm">TVC</span>
+    <!-- Hero 区域 -->
+    <section id="home" class="min-h-screen flex items-center pt-16">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+                <!-- 左侧文字内容 -->
+                <div class="max-w-3xl md:w-1/2">
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-size: 96px;">Hi, I'm Max Huu 👋</h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-8" style="font-size: 18px; line-height: 27px; color: rgb(33, 35, 38);">深耕Digital&amp;Social及品牌营销领域10年以上，具备快消、互联网、3C等多行业视觉营销实战经验，擅长品牌视觉体系全链路规划、创意落地与团队管理，兼具策略思维与执行能力，可高效联动业务需求，以高品质视觉输出助力品牌增长与价值传递。</p>
+                    <div class="flex space-x-4">
+                        <a href="#works" class="px-8 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition duration-300">
+                            View My Work
+                        </a>
+                        <a href="#about" class="px-8 py-3 border border-gray-300 text-black font-medium rounded-md hover:bg-gray-100 transition duration-300">
+                            About Me
+                        </a>
                     </div>
-                    <p class="text-gray-600 text-lg mb-8">主导大型品牌Campaign、产品上市、重要展会等核心项目视觉创意与设计，统筹从概念构思、创意发想到最终执行的全流程，打造高冲击力、强传播力的视觉方案，精准传递产品卖点与品牌精神。</p>
+                </div>
+                
+                <!-- 右侧图片 -->
+                <div class="md:w-2/5 relative">
+                    <div class="aspect-[3/4] rounded-lg overflow-hidden">
+                        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/1fce461005db4eab9f26ab1f5add75df~tplv-a9rns2rl98-image.image?lk3s=8e244e95&amp;rcl=2026020616213006965800E410B30C07C4&amp;rrcfp=e75484ac&amp;x-expires=1770970892&amp;x-signature=6mkcqTt4EcsXwMOp0GIOY80L8SQ%3D" alt="Ada Wang - Designer" class="w-full h-full object-cover">
+                    </div>
                 </div>
             </div>
-        </section>
-        
-        <!-- 主要图片展示 -->
-        <section class="py-12">
-            <div class="container mx-auto px-4">
-                <div class="max-w-5xl mx-auto">
-                    <div class="relative cursor-pointer hover:opacity-90 transition-opacity" onclick="openImageViewer('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/29449b1a007b4221921bce21be1e4dd2~tplv-a9rns2rl98-image.image?rcl=20251013163918FB6EAC6B654496E25F85&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949563&amp;x-signature=B6ka6pttP6CFMPh%2FXj8k6xP63i4%3D')">
-                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/29449b1a007b4221921bce21be1e4dd2~tplv-a9rns2rl98-image.image?rcl=20251013163918FB6EAC6B654496E25F85&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949563&amp;x-signature=B6ka6pttP6CFMPh%2FXj8k6xP63i4%3D" alt="Millmane App UI" class="w-full h-auto rounded-lg">
-                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300">
-                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 hover:opacity-100">
-                                <i class="fa fa-search-plus mr-2"></i>查看大图
-                            </span>
+        </div>
+    </section>
+
+    <!-- 作品展示区 -->
+    <section id="works" class="py-24 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold mb-16 text-center">Selected Works</h2>
+            
+            <!-- 作品网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 作品1 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="UI/UX">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/bb33a13be0b94cdba3490a7004e8fc81~tplv-a9rns2rl98-image.image?lk3s=8e244e95&amp;rcl=20260206175123589E124E5B3F2F0C80EB&amp;rrcfp=e75484ac&amp;x-expires=1770976283&amp;x-signature=mjQEJZmzjwLTzrvuzkCf8vmOsT4%3D" alt="Mobile App UI Design" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">BRAND
+CREATIVITY</h3>
+                        <p class="text-gray-600 text-sm mb-4">主导大型品牌Campaign、产品上市、重要展会等核心项目视觉创意与设计，统筹从概念构思、创意发想到最终执行的全流程，打造高冲击力、强传播力的视觉方案，精准传递产品卖点与品牌精神。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">Brand
+Creativity</div>
+                            <a href="works/work1.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品2 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="Web Design">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/520c2cb70ce74a5e873ecc213be07d49~tplv-a9rns2rl98-image.image?rcl=20251013162436B2ED504F4E124AF921CD&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760948681&amp;x-signature=mHPZrZeJjztdaF94jLEBa09ZNyE%3D" alt="Modern Website Design" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Oitcut Website</h3>
+                        <p class="text-gray-600 text-sm mb-4">Light theme website with modern typography and interactive elements.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">Web Design</div>
+                            <a href="works/work2.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品3 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="Branding">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/574e47a1407b482b836e9e65afe0a269~tplv-a9rns2rl98-image.image?rcl=20251013163305F8CF0626CD00FB1D6A39&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949190&amp;x-signature=JUmkfR89C%2FLnKtiIouqP61rG%2FeE%3D" alt="Branding Design" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Earphone Product Branding</h3>
+                        <p class="text-gray-600 text-sm mb-4">Elegant branding design with gold foil finish on black background.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">Branding</div>
+                            <a href="works/work3.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品4 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="Product Design">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/90032b8a3adf4b169b1957cdb1e6afaf~tplv-a9rns2rl98-image.image?rcl=20251013164250F4993424CAEF794F6D63&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949774&amp;x-signature=eeDe93hSK4rMUlCMb%2Bw0fxqLCuM%3D" alt="Product Design Sketches" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Product Design Process</h3>
+                        <p class="text-gray-600 text-sm mb-4">Technical drawings and sketches for a modern consumer product.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">Product Design</div>
+                            <a href="works/work4.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品5 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="UX Research">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/98c01d1c61c645778cdcb4e529a8882e~tplv-a9rns2rl98-image.image?rcl=20251013164023970D359F3CD4DADE7A59&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949627&amp;x-signature=zU77Hv%2BXz8IMMwolvvRh7iQmasM%3D" alt="UX Research Visualization" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Sofa Design</h3>
+                        <p class="text-gray-600 text-sm mb-4">3D rendering of Scandinavian Style sofa design, simple, minimal, elegant touching.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">UX Research</div>
+                            <a href="works/work5.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品6 -->
+                <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group" data-category="3D Design">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/19abb3f8a92e47949319b2c891001bc3~tplv-a9rns2rl98-image.image?rcl=20251011114612D6F40923774973B0CC79&amp;rk3s=8e244e95&amp;rrcfp=f06b921b&amp;x-expires=1762746398&amp;x-signature=rZWgL3A83ZsR8JdE68SIeiWy%2FbI%3D" alt="3D Product Rendering" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-white text-black text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View Details</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Minimal Tech Product</h3>
+                        <p class="text-gray-600 text-sm mb-4">3D rendering of a modern, minimalist tech product with clean lines.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-100 rounded-full text-sm">3D Design</div>
+                            <a href="works/work6.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        
-        <!-- 项目详情 -->
-        <section class="py-12">
-            <div class="container mx-auto px-4">
-                <div class="max-w-5xl mx-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- 左侧：项目概述 -->
-                        <div class="fade-in">
-                            <h2 class="text-2xl font-bold mb-6">Project Overview</h2>
-                            <p class="text-gray-600 mb-6 leading-relaxed" style="font-weight: normal; font-size: 16px;">卡萨帝x亮碟CNY联合营销</p>
-                            <p class="text-gray-600 mb-6 leading-relaxed">我们精准借力中国新年阖家团圆的节日契机，以“让家人做回家人”为核心slogan，将这份温暖的家庭情感贯穿推广全链路，让品牌传播既有节日氛围感，更有情感共鸣点。推广期间，我们搭建了有序递进的传播节奏：前期在主流社交媒体平台释放系列倒计时海报，以简约高级的视觉呈现传递合作信号，持续营造悬念、积累受众期待；随后正式上线蓝V联动互动H5，联动卡萨帝与亮碟官方账号同步发力，引导用户参与互动、传递新年心意，同时配合系列social海报、朋友圈精准推送实现全域铺排，快速扩大活动曝光；最终结合线上主题视频与线下终端物料的大面积落地，形成“线上引流造势、线下渗透触达”的闭环传播，全方位覆盖目标客群，切实实现了两大品牌跨界联动“1+1＞2”的传播效果，达成品牌影响力与用户好感度的双重提升。</p>
+        </div>
+    </section>
 
-                            
-                            <h3 class="text-xl font-semibold mb-4 mt-8">Tools Used</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Figma</span>
-                                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Adobe Photoshop</span>
-                                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Adobe Illustrator</span>
-                                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Principle</span>
+    <!-- 关于我区域 -->
+    <section id="about" class="py-24">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-top gap-12">
+                <div class="md:w-1/3">
+                    <div class="relative">
+                        <img src="https://p11-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/bacb19095880424da444d341a70bf7c0~tplv-a9rns2rl98-image.image?lk3s=8e244e95&amp;rcl=202602061625478810C1EB8C82600C1FE3&amp;rrcfp=e75484ac&amp;x-expires=1770971148&amp;x-signature=1ZsednzShY5PU546TJNY61aQTcI%3D" alt="Ada Wang" class="w-full rounded-lg relative z-10">
+                    </div>
+                </div>
+                
+                <div class="md:w-2/3">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">About Me</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed" style="text-decoration: none;">品牌视觉战略与全渠道管控：
+制定并优化品牌视觉识别系统（VIS），建立全球统一视觉规范，统筹全渠道视觉创意规划与质量把控，覆盖品牌传播主视觉、产品全场景视觉（渲染图、包装、说明书等）、官网及社交媒体广告素材，贴合营销需求实现视觉与传播深度适配。
+
+洞察行业设计趋势，定期开展竞品视觉分析，结合多元行业经验，为品牌视觉迭代提供专业策略建议，保持品牌视觉差异化与竞争力。
+</p>
+                    <p class="text-gray-600 mb-8 leading-relaxed">创意项目全流程统筹与落地：
+主导大型品牌Campaign、产品上市、重要展会等核心项目视觉创意与设计，统筹从概念构思、创意发想到最终执行的全流程，打造高冲击力、强传播力的视觉方案，精准传递产品卖点与品牌精神。
+
+精通TVC、OTV、KV等各类创意形式策划与跟片执行，熟悉主流平台短视频内容创意落地；管理协调外部设计机构，整合内外部资源，确保项目高效高质量交付。</p>
+                    
+                    <!-- 技能 -->
+                    <div class="mb-12">
+                        <h3 class="text-xl font-semibold mb-4">Skills</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Brand
+Creativity</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm"> Campaign</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">E-
+Commerce</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Boost Brand Growth</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Product Design</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">TVC</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Figma</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">AIGC</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">InDesign</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Photoshop</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Illustrator</span>
+                            <span class="px-4 py-2 bg-gray-100 rounded-full text-sm">Blender</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 经验和教育 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- 经验 -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Experience</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-medium">品牌顾问</h4>
+                                    <p class="text-gray-600 text-sm">南京四季光影文化传媒有限公司</p>
+                                    <p class="text-gray-500 text-xs" style="font-size: 14px; line-height: 36px; color: rgb(141, 145, 153);">2025.03 - 2026.01</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">数字传播总监</h4>
+                                    <p class="text-gray-600 text-sm">江苏汇特文化产业（集团）股份有限公司</p>
+                                    <p class="text-gray-500 text-xs" style="font-size: 14px; line-height: 36px; color: rgb(141, 145, 153);">2023.12 - 2025.01</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Digital&amp;Social总监</h4>
+                                    <p class="text-gray-600 text-sm">上海英斯派广告公司</p>
+                                    <p class="text-gray-500 text-xs" style="font-size: 14px; line-height: 36px; color: rgb(141, 145, 153);">2021.06 - 2023.11</p>
+                                </div>
                             </div>
                         </div>
                         
- 
+                        <!-- 教育 -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Education</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-medium">大学本科</h4>
+                                    <p class="text-gray-600 text-sm">南京理工大学</p>
+                                    <p class="text-gray-500 text-xs" style="font-size: 14px; line-height: 36px; color: rgb(141, 145, 153);">2022 - 2025</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">大学专科</h4>
+                                    <p class="text-gray-600 text-sm">南京信息学院</p>
+                                    <p class="text-gray-500 text-xs" style="font-size: 14px; line-height: 36px; color: rgb(141, 145, 153);">2000 - 2005</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        
+        </div>
+    </section>
 
- 
-        
-        <!-- 项目成果 -->
-        <section class="py-12 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <div class="max-w-5xl mx-auto">
-                    <h2 class="text-2xl font-bold mb-8">Project Outcomes</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- 成果1 -->
-                        <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
-                            <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-full flex items-center justify-center mb-4">
-                                <i class="fa fa-users text-accent text-xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold mb-2">User Engagement</h3>
-                            <p class="text-gray-600">
-                                40% increase in daily active users following the redesign, with a 25% increase in session duration.
-                            </p>
-                        </div>
+    <!-- 联系方式区域 -->
+    <section id="contact" class="py-24 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold mb-16 text-center">Get In Touch</h2>
+            <div class="flex flex-col lg:flex-row gap-12">                
+                <!-- 右侧联系表单 -->
+                <div class="mx-auto px-4">
+                    <div class="bg-white p-8 rounded-lg shadow-sm">
+                        <h3 class="text-2xl font-semibold mb-6">Send Me a Message</h3>
                         
-                        <!-- 成果2 -->
-                        <div class="bg-white p-6 rounded-lg shadow-sm fade-in" style="transition-delay: 0.2s;">
-                            <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-full flex items-center justify-center mb-4">
-                                <i class="fa fa-thumbs-up text-accent text-xl"></i>
+                        <form id="contact-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                    <input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
+                                </div>
                             </div>
-                            <h3 class="text-lg font-semibold mb-2">User Satisfaction</h3>
-                            <p class="text-gray-600">
-                                User satisfaction scores increased by 35%, with 90% of users reporting they find the app "easy to use."
-                            </p>
-                        </div>
-                        
-                        <!-- 成果3 -->
-                        <div class="bg-white p-6 rounded-lg shadow-sm fade-in" style="transition-delay: 0.4s;">
-                            <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-full flex items-center justify-center mb-4">
-                                <i class="fa fa-line-chart text-accent text-xl"></i>
+                            
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                                <input type="text" id="subject" name="subject" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
                             </div>
-                            <h3 class="text-lg font-semibold mb-2">Business Impact</h3>
-                            <p class="text-gray-600">
-                                30% increase in premium subscriptions following the redesign, exceeding business targets by 15%.
-                            </p>
-                        </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full px-8 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition duration-300">
+                                Send Message
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-        </section>
-        
-        <!-- 相关项目 -->
-        <section class="py-12">
-            <div class="container mx-auto px-4">
-                <h2 class="text-2xl font-bold mb-10 text-center">Related Projects</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                    <!-- 相关项目1 -->
-                    <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group fade-in">
-                        <div class="relative overflow-hidden">
-                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/520c2cb70ce74a5e873ecc213be07d49~tplv-a9rns2rl98-image.image?rcl=20251013162436B2ED504F4E124AF921CD&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760948681&amp;x-signature=mHPZrZeJjztdaF94jLEBa09ZNyE%3D" alt="Oitcut Website" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold mb-1">Oitcut Website</h3>
-                            <p class="text-gray-600 text-sm mb-3">Light theme website with modern typography.</p>
-                            <a href="work2.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
-                        </div>
-                    </div>
-                    
-                    <!-- 相关项目2 -->
-                    <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group fade-in" style="transition-delay: 0.2s;">
-                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/574e47a1407b482b836e9e65afe0a269~tplv-a9rns2rl98-image.image?rcl=20251013163305F8CF0626CD00FB1D6A39&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1760949190&amp;x-signature=JUmkfR89C%2FLnKtiIouqP61rG%2FeE%3D" alt="Gold &amp; Black Branding" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="p-4">
-                            <h3 class="font-semibold mb-1">Earphone Product Branding</h3>
-                            <p class="text-gray-600 text-sm mb-3">Elegant branding design with gold foil finish on black background.</p>
-                            <a href="work3.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
-                        </div>
-                    </div>
-                    
-                    <!-- 相关项目3 -->
-                    <div class="work-card bg-white rounded-lg overflow-hidden shadow-sm group fade-in" style="transition-delay: 0.4s;">
-                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/19abb3f8a92e47949319b2c891001bc3~tplv-a9rns2rl98-image.image?rcl=20251011114612D6F40923774973B0CC79&amp;rk3s=8e244e95&amp;rrcfp=f06b921b&amp;x-expires=1762746398&amp;x-signature=rZWgL3A83ZsR8JdE68SIeiWy%2FbI%3D" alt="Minimal Tech Product" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="p-4">
-                            <h3 class="font-semibold mb-1">Minimal Tech Product</h3>
-                            <p class="text-gray-600 text-sm mb-3">Technical drawings and sketches for a consumer product.</p>
-                            <a href="work6.html" class="text-accent text-sm font-medium hover:underline">View Project</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 返回作品列表按钮 -->
-                <div class="text-center mt-12">
-                    <a href="../index.html#works" class="inline-flex items-center px-8 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition duration-300">
-                        Back to All Works
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
     <!-- 页脚 -->
     <footer class="py-12 bg-black text-white">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
-                    <h3 class="text-2xl font-bold">Ada Wang</h3>
+                    <h3 class="text-2xl font-bold">Max Huu</h3>
                     <p class="text-gray-400 mt-2">A designer crafting digital experiences.</p>
                 </div>
                 
@@ -338,11 +453,10 @@
         </div>
     </footer>
 
-    <!-- 图片查看器 -->
-    <div id="image-viewer" class="image-viewer">
-        <span class="image-viewer-close" onclick="closeImageViewer()">×</span>
-        <img id="viewer-image" src="" alt="Large image view">
-    </div>
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-black text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300">
+        <i class="fa fa-arrow-up"></i>
+    </button>
 
     <script>
         // 页面加载完成后执行
@@ -353,6 +467,28 @@
             
             menuToggle.addEventListener('click', function() {
                 mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 关闭移动菜单（如果打开）
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80, // 考虑导航栏高度
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
             
             // 导航栏滚动效果
@@ -367,7 +503,27 @@
                 }
             });
             
-            // 淡入动画
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                    backToTopButton.classList.remove('opacity-100', 'visible');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 滚动动画
             const fadeElements = document.querySelectorAll('.fade-in');
             
             const fadeInOnScroll = function() {
@@ -389,65 +545,64 @@
             
             // 使用 GSAP 添加更复杂的动画
             if (typeof gsap !== 'undefined') {
-                // 标题和简介动画
-                gsap.from('section:first-of-type h1', {
+                // Hero 区域动画
+                gsap.from('#home h1', {
                     opacity: 0,
                     y: 50,
                     duration: 1,
                     delay: 0.2
                 });
                 
-                gsap.from('section:first-of-type .flex', {
+                gsap.from('#home p', {
                     opacity: 0,
                     y: 30,
                     duration: 1,
                     delay: 0.5
                 });
                 
-                gsap.from('section:first-of-type p', {
+                gsap.from('#home .flex', {
                     opacity: 0,
                     y: 20,
                     duration: 1,
                     delay: 0.8
                 });
                 
-                // 主要图片动画
-                gsap.from('section:nth-of-type(2) img', {
-                    opacity: 0,
-                    scale: 0.9,
-                    duration: 1,
-                    delay: 1
+                // 作品卡片动画
+                gsap.utils.toArray('.work-card').forEach((card, i) => {
+                    gsap.from(card, {
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top bottom-=100',
+                            toggleActions: 'play none none none'
+                        },
+                        opacity: 0,
+                        y: 50,
+                        duration: 0.8,
+                        delay: i * 0.1
+                    });
                 });
             }
-        });
-        
-        // 图片查看器功能
-        function openImageViewer(imageUrl) {
-            const viewer = document.getElementById('image-viewer');
-            const viewerImage = document.getElementById('viewer-image');
             
-            viewerImage.src = imageUrl;
-            viewer.classList.add('active');
-            document.body.style.overflow = 'hidden'; // 防止背景滚动
-        }
-        
-        function closeImageViewer() {
-            const viewer = document.getElementById('image-viewer');
-            viewer.classList.remove('active');
-            document.body.style.overflow = 'auto'; // 恢复背景滚动
-        }
-        
-        // 点击图片查看器背景关闭
-        document.getElementById('image-viewer').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeImageViewer();
-            }
-        });
-        
-        // 按ESC键关闭图片查看器
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeImageViewer();
+            // 表单提交处理
+            const contactForm = document.getElementById('contact-form');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // 获取表单数据
+                    const formData = new FormData(contactForm);
+                    const formDataObject = {};
+                    
+                    formData.forEach((value, key) => {
+                        formDataObject[key] = value;
+                    });
+                    
+                    // 在实际应用中，这里会发送数据到服务器
+                    // 这里仅做演示，显示提交成功消息
+                    alert('Message sent successfully!');
+                    contactForm.reset();
+                });
             }
         });
     </script>
